@@ -17,11 +17,16 @@ export interface SurveyQuestion {
 
 interface SurveyProps {
   questions: SurveyQuestion[]
+  handleSurveySubmit: (surveyResults: string[]) => void
 }
 
-export const Survey: React.FC<SurveyProps> = ({ questions }) => {
+export const Survey: React.FC<SurveyProps> = ({
+  questions,
+  handleSurveySubmit,
+}) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [selectedOption, setSelectedOption] = useState("")
+  const [surveyResults, setSurveyResults] = useState<string[]>([])
 
   const currentQuestion = questions[currentQuestionIndex]
 
@@ -31,6 +36,7 @@ export const Survey: React.FC<SurveyProps> = ({ questions }) => {
 
   const handleNext = () => {
     // Handle saving the selected option somewhere
+    setSurveyResults([...surveyResults, selectedOption])
     setSelectedOption("")
     setCurrentQuestionIndex(currentQuestionIndex + 1)
   }
@@ -65,7 +71,11 @@ export const Survey: React.FC<SurveyProps> = ({ questions }) => {
             Next
           </Button>
         ) : (
-          <Button variant="contained" color="primary">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => handleSurveySubmit(surveyResults)}
+          >
             Submit
           </Button>
         )}
@@ -94,4 +104,4 @@ const questions: SurveyQuestion[] = [
   },
 ]
 
-export const DefaultSurvey = () => <Survey questions={questions} />
+// export const DefaultSurvey = () => <Survey questions={questions}  />

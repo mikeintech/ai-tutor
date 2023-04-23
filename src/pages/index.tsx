@@ -1,11 +1,10 @@
 import { useState } from "react"
 import Head from "next/head"
 import { Box, Button, TextField, ThemeProvider } from "@material-ui/core"
-import { Search as SearchIcon } from "@material-ui/icons"
 import { createTheme } from "@material-ui/core/styles"
 import { Configuration, OpenAIApi } from "openai"
-import { DefaultSurvey, Survey, SurveyQuestion } from "./survey"
-import { CircularProgress } from "@material-ui/core"
+import { Survey, SurveyQuestion } from "./survey"
+import { LessonPlan } from "./lessonPlan"
 
 const theme = createTheme({
   palette: {
@@ -26,6 +25,8 @@ export default function Home(): JSX.Element {
   const [showSurvey, setShowSurvey] = useState<boolean>(false)
   const [questions, setQuestions] = useState<SurveyQuestion[]>([])
   const [loading, setLoading] = useState<boolean>(false)
+  const [showLessonPlan, setShowLessonPlan] = useState<boolean>(false)
+  const [surveyResults, setSurveyResults] = useState<string[]>([])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -40,6 +41,11 @@ export default function Home(): JSX.Element {
 
     setShowSurvey(true)
     setQuestions(JSON.parse(surveyQuestions ?? ""))
+  }
+
+  const handleSurveySubmit = (surveyResults: string[]) => {
+    setSurveyResults(surveyResults)
+    setShowLessonPlan(true)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,7 +98,9 @@ export default function Home(): JSX.Element {
           justifyContent="center"
           height="100vh"
         >
-          {!showSurvey ? (
+          {showLessonPlan ? (
+            <LessonPlan surveyResults={surveyResults} />
+          ) : (
             <Box
               display="flex"
               flexDirection="column"
@@ -106,7 +114,7 @@ export default function Home(): JSX.Element {
                   <TextField
                     id="topic"
                     name="topic"
-                    label="type a topic learn fast with AI"
+                    label="Type a topic to learn it fast with AI"
                     value={topic}
                     onChange={handleChange}
                   />
@@ -116,11 +124,15 @@ export default function Home(): JSX.Element {
                   Start Learning
                 </Button>
               </form>
+
+              {questions.length > 0 && (
+                <Survey
+                  questions={questions}
+                  handleSurveySubmit={handleSurveySubmit}
+                />
+              )}
             </Box>
-          ) : (
-            <Survey questions={questions} />
           )}
-          {loading && <CircularProgress />}
         </Box>
       </ThemeProvider>
     </>
